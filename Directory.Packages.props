@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Elmish" Version="4.2.0" />
+    <PackageVersion Include="Feliz.Shadcn" Version="0.9.1" />
     <PackageVersion Include="FSharp.Core" Version="8.0.401" />
     <PackageVersion Include="Fable.Elmish.HMR" Version="7.0.0" />
     <PackageVersion Include="Fable.Elmish.React" Version="4.0.0" />
