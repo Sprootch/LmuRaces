@@ -56,6 +56,7 @@ let raceEventsComponent (events: RaceEvent list) =
             Shadcn.tableRow [
                 Shadcn.tableHead "Time"
                 Shadcn.tableHead "Title"
+                Shadcn.tableHead "Tier"
                 Shadcn.tableHead "Track"
                 Shadcn.tableHead "Duration"
             ]
@@ -65,6 +66,7 @@ let raceEventsComponent (events: RaceEvent list) =
             Shadcn.tableRow [
                 Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
                 Shadcn.tableCell event.Title
+                Shadcn.tableCell event.Tier
                 Shadcn.tableCell event.Track
                 Shadcn.tableCell event.Duration
             ])
