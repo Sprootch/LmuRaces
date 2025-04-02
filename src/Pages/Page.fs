@@ -8,6 +8,7 @@ open LmuRaces.Shared
 open LmuRaces.Pages
 open Thoth.Json
 open Thoth.Fetch
+open Feliz.Shadcn
 
 type RaceEvent = {
     Title: string
@@ -45,15 +46,34 @@ let raceEventsComponent (events: RaceEvent list) =
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
-    Html.ul [
-        prop.children [
-            yield!
-                events
-                |> List.map (fun (dt, item) ->
-                    Html.li
-                        $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
+    Shadcn.table [
+        Shadcn.tableCaption "LMU races"
+        Shadcn.tableHeader [
+            Shadcn.tableRow [
+                Shadcn.tableHead [ prop.innerHtml "Time" ]
+                Shadcn.tableHead [ prop.innerHtml "Title" ]
+                Shadcn.tableHead [ prop.innerHtml "Track" ]
+                Shadcn.tableHead [ prop.innerHtml "Duration" ]
+            ]
+        ]
+        Shadcn.tableBody [
+            Shadcn.tableRow [
+                Shadcn.tableCell "A"
+                Shadcn.tableCell "B"
+                Shadcn.tableCell "C"
+                Shadcn.tableCell "D"
+            ]
         ]
     ]
+// Html.ul [
+//     prop.children [
+//         yield!
+//             events
+//             |> List.map (fun (dt, item) ->
+//                 Html.li
+//                     $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
+//     ]
+// ]
 
 let view (_model: Model) (_dispatch: Msg -> unit) =
     if _model.IsLoading then
