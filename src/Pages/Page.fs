@@ -17,7 +17,10 @@ type RaceEvent = {
     Schedules: DateTimeOffset List
 }
 
-type Model = { Events: RaceEvent list }
+type Model = {
+    Events: RaceEvent list
+    IsLoading: bool
+}
 
 type Msg =
     | LayoutMsg of Layout.Msg
@@ -27,18 +30,19 @@ let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase)
 
 let init (_shared: SharedModel) =
-    { Events = [] }, Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
+    { Events = []; IsLoading = true }, Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
 
 let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
-    | EventsFetched events -> { Events = events }, Command.none
+    | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
 
-let view (_model: Model) (_dispatch: Msg -> unit) =
+let loadingComponent () = Html.text "Loading..."
+
+let raceEventsComponent (events: RaceEvent list) =
     let events =
-        _model.Events
-        |> List.collect (fun event ->
-            event.Schedules |> List.map (fun schedule -> (schedule, event)))
+        events
+        |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
     Html.ul [
@@ -46,9 +50,16 @@ let view (_model: Model) (_dispatch: Msg -> unit) =
             yield!
                 events
                 |> List.map (fun (dt, item) ->
-                    Html.li $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
+                    Html.li
+                        $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
         ]
     ]
+
+let view (_model: Model) (_dispatch: Msg -> unit) =
+    if _model.IsLoading then
+        loadingComponent ()
+    else
+        raceEventsComponent _model.Events
 
 let page (_shared: SharedModel) (_route: HomeRoute) =
     Page.from (fun _ -> init _shared) update view () LayoutMsg
