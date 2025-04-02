@@ -10,6 +10,7 @@ open Thoth.Json
 open Thoth.Fetch
 
 type RaceEvent = {
+    Title: string
     Tier: string
     Track: string
     Duration: string
@@ -45,7 +46,7 @@ let view (_model: Model) (_dispatch: Msg -> unit) =
             yield!
                 events
                 |> List.map (fun (dt, item) ->
-                    Html.li $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Tier} / {item.Track} / {item.Duration}""")
+                    Html.li $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
         ]
     ]
 
