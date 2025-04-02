@@ -8,6 +8,7 @@ open LmuRaces.Shared
 open LmuRaces.Pages
 open Thoth.Json
 open Thoth.Fetch
+open Feliz.Shadcn
 
 type RaceEvent = {
     Title: string
@@ -37,7 +38,7 @@ let update (msg: Msg) (model: Model) =
     | LayoutMsg _ -> model, Command.none
     | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
 
-let loadingComponent () = Html.text "Loading..."
+let loadingComponent () = Shadcn.button [ prop.text "Loading..." ]
 
 let raceEventsComponent (events: RaceEvent list) =
     let events =
