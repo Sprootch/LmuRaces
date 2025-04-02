@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarnOn></WarnOn>
+        <NoWarn></NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="App.fs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../LmuRaces.fsproj" />
+    </ItemGroup>
+
+</Project>
