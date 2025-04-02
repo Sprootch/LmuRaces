@@ -32,6 +32,11 @@ jobs:
                const coredemo = require('@actions/core')
                return await coredemo.getIDToken()
            result-encoding: string
+      - name: Setup dotnet
+        id: dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.x'
       - name: Elmish Land
         id: elmishland
         run: dotnet tool install elmish-land --create-manifest-if-needed
