@@ -38,12 +38,7 @@ let update (msg: Msg) (model: Model) =
     | LayoutMsg _ -> model, Command.none
     | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
 
-let loadingComponent () =
-    Shadcn.button [
-        button.variant.destructive
-        prop.text "Loading..."
-    ]
-    // Shadcn.button [ prop.text "Loading..." ]
+let loadingComponent () = Html.text "Loading..."
 
 let raceEventsComponent (events: RaceEvent list) =
     let events =
