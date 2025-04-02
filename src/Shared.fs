@@ -3,12 +3,14 @@ module LmuRaces.Shared
 open System
 open ElmishLand
 
-type SharedModel = unit
+type SharedModel = {
+    ApiUrl : string
+}
 
 type SharedMsg = | NoOp
 
 let init () =
-    (), Command.none
+    { ApiUrl = "https://localhost:5001/api" }, Command.none
 
 let update (msg: SharedMsg) (model: SharedModel) =
     match msg with

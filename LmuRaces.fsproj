@@ -15,4 +15,9 @@
     <ItemGroup>
       <ProjectReference Include=".elmish-land/Base/ElmishLand.LmuRaces.Base.fsproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Thoth.Fetch" />
+      <PackageReference Include="Thoth.Json" />
+    </ItemGroup>
 </Project>
