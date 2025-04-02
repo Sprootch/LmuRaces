@@ -6,10 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="src/Shared.fs"/>
-        <Compile Include="src/Pages/NotFound.fs"/>
-        <Compile Include="src/Pages/Layout.fs"/>
-        <Compile Include="src/Pages/Page.fs"/>
+        <Compile Include="src/Shared.fs" />
+        <Compile Include="src/Pages/NotFound.fs" />
+        <Compile Include="src/Pages/Layout.fs" />
+        <Compile Include="src/Pages/Page.fs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Feliz.Shadcn" />
       <PackageReference Include="Thoth.Fetch" />
       <PackageReference Include="Thoth.Json" />
     </ItemGroup>
