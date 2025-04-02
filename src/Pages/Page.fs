@@ -51,23 +51,23 @@ let raceEventsComponent (events: RaceEvent list) =
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
-    // Shadcn.button [
-    //     button.variant.secondary
-    //     prop.text "Button"
-    // ]
     Shadcn.table [
-        Shadcn.tableCaption "test"
         Shadcn.tableHeader [
             Shadcn.tableRow [
                 Shadcn.tableHead "Time"
                 Shadcn.tableHead "Title"
+                Shadcn.tableHead "Track"
+                Shadcn.tableHead "Duration"
             ]
         ]
         Shadcn.tableBody [
+            yield! events |> List.map (fun (dt, event) ->
             Shadcn.tableRow [
-                Shadcn.tableCell "A"
-                Shadcn.tableCell "B"
-            ]
+                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                Shadcn.tableCell event.Title
+                Shadcn.tableCell event.Track
+                Shadcn.tableCell event.Duration
+            ])
         ]
     ]
 
