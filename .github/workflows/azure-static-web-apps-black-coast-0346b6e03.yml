@@ -39,9 +39,9 @@ jobs:
           dotnet-version: '9.x'
       - name: Elmish Land
         id: elmishland
-        run: "dotnet tool install elmish-land --create-manifest-if-needed"
-             "dotnet elmish-land init"
-             "dotnet elmish-land build"
+        run: dotnet tool install elmish-land --create-manifest-if-needed
+             #dotnet elmish-land init
+             #dotnet elmish-land build
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
