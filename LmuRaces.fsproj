@@ -17,7 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Feliz.Lucide" />
+      <PackageReference Include="Feliz.RadixUI.Interface" />
       <PackageReference Include="Feliz.Shadcn" />
+      <PackageReference Include="Feliz.Shadcn.Interop" />
       <PackageReference Include="Thoth.Fetch" />
       <PackageReference Include="Thoth.Json" />
     </ItemGroup>

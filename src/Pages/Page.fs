@@ -38,7 +38,12 @@ let update (msg: Msg) (model: Model) =
     | LayoutMsg _ -> model, Command.none
     | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
 
-let loadingComponent () = Shadcn.button [ prop.text "Loading..." ]
+let loadingComponent () =
+    Shadcn.button [
+        button.variant.destructive
+        prop.text "Loading..."
+    ]
+    // Shadcn.button [ prop.text "Loading..." ]
 
 let raceEventsComponent (events: RaceEvent list) =
     let events =
@@ -46,6 +51,10 @@ let raceEventsComponent (events: RaceEvent list) =
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
+    // Shadcn.button [
+    //     button.variant.secondary
+    //     prop.text "Button"
+    // ]
     Shadcn.table [
         Shadcn.tableCaption "test"
         Shadcn.tableHeader [
