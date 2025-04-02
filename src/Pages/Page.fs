@@ -8,6 +8,7 @@ open LmuRaces.Shared
 open LmuRaces.Pages
 open Thoth.Json
 open Thoth.Fetch
+open Feliz.Shadcn
 
 type RaceEvent = {
     Title: string
@@ -37,7 +38,12 @@ let update (msg: Msg) (model: Model) =
     | LayoutMsg _ -> model, Command.none
     | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
 
-let loadingComponent () = Html.text "Loading..."
+let loadingComponent () =
+    Shadcn.button [
+        button.variant.destructive
+        prop.text "Loading..."
+    ]
+    // Shadcn.button [ prop.text "Loading..." ]
 
 let raceEventsComponent (events: RaceEvent list) =
     let events =
@@ -45,13 +51,23 @@ let raceEventsComponent (events: RaceEvent list) =
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
-    Html.ul [
-        prop.children [
-            yield!
-                events
-                |> List.map (fun (dt, item) ->
-                    Html.li
-                        $"""{dt.ToLocalTime().ToString("HH:mm")} / {item.Title} / {item.Tier} / {item.Track} / {item.Duration}""")
+    Shadcn.table [
+        Shadcn.tableHeader [
+            Shadcn.tableRow [
+                Shadcn.tableHead "Time"
+                Shadcn.tableHead "Title"
+                Shadcn.tableHead "Track"
+                Shadcn.tableHead "Duration"
+            ]
+        ]
+        Shadcn.tableBody [
+            yield! events |> List.map (fun (dt, event) ->
+            Shadcn.tableRow [
+                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                Shadcn.tableCell event.Title
+                Shadcn.tableCell event.Track
+                Shadcn.tableCell event.Duration
+            ])
         ]
     ]
 
