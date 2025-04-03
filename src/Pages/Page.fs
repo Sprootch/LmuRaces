@@ -23,13 +23,6 @@ type Tier =
     | Intermediate
     | Advanced
 
-    static member ToString(tier: Tier) =
-        match tier with
-        | All -> "all"
-        | Beginner -> "beginner"
-        | Intermediate -> "intermediate"
-        | Advanced -> "advanced"
-
     static member FromString(s: string) =
         match s.ToLower() with
         | "all" -> All
@@ -40,7 +33,7 @@ type Tier =
 
 type RaceEvent = {
     Title: string
-    Tier: string
+    Tier: Tier
     Track: string
     Duration: string
     Schedules: DateTimeOffset List
@@ -57,8 +50,28 @@ type Msg =
     | EventsFetched of RaceEvent list
     | TierChanged of string
 
+module Decoders =
+    let tierDecoder: Decoder<Tier> =
+        Decode.string
+        |> Decode.andThen (fun str ->
+            match str.ToLower() with
+            | "all" -> Decode.succeed Tier.All
+            | "beginner" -> Decode.succeed Tier.Beginner
+            | "intermediate" -> Decode.succeed Tier.Intermediate
+            | "advanced" -> Decode.succeed Tier.Advanced
+            | _ -> Decode.fail $"Impossible de convertir '{str}' en Tier")
+
+    let tierEncoder (tier: Tier) =
+        match tier with
+        | Tier.All -> Encode.string "all"
+        | Tier.Beginner -> Encode.string "beginner"
+        | Tier.Intermediate -> Encode.string "intermediate"
+        | Tier.Advanced -> Encode.string "advanced"
+
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
-    Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase)
+    let customResolver =
+        Extra.empty |> Extra.withCustom Decoders.tierEncoder Decoders.tierDecoder
+    Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase, extra = customResolver)
 
 let init (_shared: SharedModel) =
     {
@@ -116,7 +129,7 @@ let filterEvents tier event =
     if tier = All then
         true
     else
-        event.Tier = Tier.ToString(tier)
+        event.Tier = tier
 
 let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
     let events =
@@ -146,7 +159,7 @@ let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
                                 Shadcn.tableCell [
                                     prop.children [
                                         Html.div event.Title
-                                        Shadcn.badge [ prop.text event.Tier; badge.variant.destructive ]
+                                        Shadcn.badge [ prop.text (event.Tier |> string); badge.variant.destructive ]
                                     ]
                                 ]
                                 Shadcn.tableCell event.Track
