@@ -95,6 +95,7 @@ let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
         |> List.sortBy fst
 
     Html.div [
+        prop.className "relative w-full overflow-x-auto"
         prop.children [
             tierSelector dispatch
             Shadcn.table [
@@ -126,11 +127,39 @@ let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
         ]
     ]
 
+let appSideBar () =
+    Shadcn.sidebar [
+        Shadcn.sidebarContent [
+            Shadcn.sidebarGroup [
+                Shadcn.sidebarGroupLabel "Application"
+                Shadcn.sidebarGroupContent [
+                    Shadcn.sidebarMenu [
+                        Shadcn.sidebarMenuItem [
+                            prop.children [
+                                Shadcn.sidebarMenuButton [
+                                    Html.a [
+                                        prop.href "https://www.racecontrol.gg"
+                                        prop.innerHtml "RaceControl"
+                                        prop.target.blank
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+
 let view (_model: Model) (_dispatch: Msg -> unit) =
     if _model.IsLoading then
         loadingComponent ()
     else
-        raceEventsComponent _model _dispatch
+        Shadcn.sidebarProvider [
+            appSideBar ()
+            Shadcn.sidebarTrigger []
+            raceEventsComponent _model _dispatch
+        ]
 
 let page (_shared: SharedModel) (_route: HomeRoute) =
     Page.from (fun _ -> init _shared) update view () LayoutMsg
