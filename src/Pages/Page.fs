@@ -18,10 +18,10 @@ open Feliz.Shadcn
 // Avoir son propre backend
 // Championnat
 
-// type Tier =
-//     | Beginner
-//     | Intermediate
-//     | Advanced
+type Tier =
+    | Beginner
+    | Intermediate
+    | Advanced
 
 type RaceEvent = {
     Title: string
@@ -68,58 +68,25 @@ let raceEventsComponent (events: RaceEvent list) (dispatch: Msg -> unit) =
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
-    Html.div [
-        prop.children [
-            Shadcn.switch [
-                prop.onCheckedChange (fun _ -> Browser.Dom.window.alert ("checked"))
-                prop.onChange (fun (s: string) -> Browser.Dom.window.alert ("changed"))
+    Shadcn.table [
+        Shadcn.tableHeader [
+            Shadcn.tableRow [
+                Shadcn.tableHead "Time"
+                Shadcn.tableHead "Title"
+                Shadcn.tableHead "Track"
+                Shadcn.tableHead "Duration"
             ]
-
-            Shadcn.select [
-                prop.onChange (fun value -> dispatch (Msg.TierChanged value))
-                prop.onCheckedChange (fun _ -> Browser.Dom.window.alert ("Click"))
-                prop.children [
-                    Shadcn.selectTrigger [
-                        Shadcn.selectValue [
-                            prop.placeholder "Tier"
-                            prop.onChange (fun value -> dispatch (Msg.TierChanged value))
-                        ]
-                    ]
-                    Shadcn.selectContent [
-                        Shadcn.selectItem [
-                            prop.value "All"
-                            prop.text "All"
-                            prop.onClick (fun _ -> Browser.Dom.window.alert ("All"))
-                        ]
-                        Shadcn.selectItem [ prop.value "Beginner"; prop.text "Beginner" ]
-                        Shadcn.selectItem [ prop.value "Intermediate"; prop.text "Intermediate" ]
-                        Shadcn.selectItem [ prop.value "Advanced"; prop.text "Advanced" ]
-                    ]
-                ]
-            ]
-            Shadcn.table [
-                Shadcn.tableHeader [
+        ]
+        Shadcn.tableBody [
+            yield!
+                events
+                |> List.map (fun (dt, event) ->
                     Shadcn.tableRow [
-                        Shadcn.tableHead "Time"
-                        Shadcn.tableHead "Title"
-                        Shadcn.tableHead "Tier"
-                        Shadcn.tableHead "Track"
-                        Shadcn.tableHead "Duration"
-                    ]
-                ]
-                Shadcn.tableBody [
-                    yield!
-                        events
-                        |> List.map (fun (dt, event) ->
-                            Shadcn.tableRow [
-                                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
-                                Shadcn.tableCell event.Title
-                                Shadcn.tableCell (event.Tier |> string)
-                                Shadcn.tableCell event.Track
-                                Shadcn.tableCell event.Duration
-                            ])
-                ]
-            ]
+                        Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                        Shadcn.tableCell [ prop.children [ Html.div event.Title; Shadcn.badge [ prop.text event.Tier ; badge.variant.destructive] ] ]
+                        Shadcn.tableCell event.Track
+                        Shadcn.tableCell event.Duration
+                    ])
         ]
     ]
 
