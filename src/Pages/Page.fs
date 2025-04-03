@@ -64,20 +64,20 @@ let raceEventsComponent (events: RaceEvent list) =
             Shadcn.tableRow [
                 Shadcn.tableHead "Time"
                 Shadcn.tableHead "Title"
-                Shadcn.tableHead "Tier"
                 Shadcn.tableHead "Track"
                 Shadcn.tableHead "Duration"
             ]
         ]
         Shadcn.tableBody [
-            yield! events |> List.map (fun (dt, event) ->
-            Shadcn.tableRow [
-                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
-                Shadcn.tableCell event.Title
-                Shadcn.tableCell (event.Tier |> string)
-                Shadcn.tableCell event.Track
-                Shadcn.tableCell event.Duration
-            ])
+            yield!
+                events
+                |> List.map (fun (dt, event) ->
+                    Shadcn.tableRow [
+                        Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                        Shadcn.tableCell [ prop.children [ Html.div event.Title; Shadcn.badge [ prop.text event.Tier ; badge.variant.destructive] ] ]
+                        Shadcn.tableCell event.Track
+                        Shadcn.tableCell event.Duration
+                    ])
         ]
     ]
 
