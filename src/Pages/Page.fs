@@ -18,10 +18,10 @@ open Feliz.Shadcn
 // Avoir son propre backend
 // Championnat
 
-type Tier =
-    | Beginner
-    | Intermediate
-    | Advanced
+// type Tier =
+//     | Beginner
+//     | Intermediate
+//     | Advanced
 
 type RaceEvent = {
     Title: string
@@ -39,6 +39,7 @@ type Model = {
 type Msg =
     | LayoutMsg of Layout.Msg
     | EventsFetched of RaceEvent list
+    | TierChanged of string
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase)
@@ -49,35 +50,76 @@ let init (_shared: SharedModel) =
 let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
-    | EventsFetched events -> { Events = events; IsLoading = false }, Command.none
+    | EventsFetched events ->
+        { Events = events; IsLoading = false }, Command.none
+    | TierChanged tier ->
+        {
+            model with
+                Events = model.Events |> List.filter (fun e -> e.Tier = tier)
+        },
+        Command.none
+
 
 let loadingComponent () = Html.text "Loading..."
 
-let raceEventsComponent (events: RaceEvent list) =
+let raceEventsComponent (events: RaceEvent list) (dispatch: Msg -> unit) =
     let events =
         events
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
-    Shadcn.table [
-        Shadcn.tableHeader [
-            Shadcn.tableRow [
-                Shadcn.tableHead "Time"
-                Shadcn.tableHead "Title"
-                Shadcn.tableHead "Tier"
-                Shadcn.tableHead "Track"
-                Shadcn.tableHead "Duration"
+    Html.div [
+        prop.children [
+            Shadcn.switch [
+                prop.onCheckedChange (fun _ -> Browser.Dom.window.alert ("checked"))
+                prop.onChange (fun (s: string) -> Browser.Dom.window.alert ("changed"))
             ]
-        ]
-        Shadcn.tableBody [
-            yield! events |> List.map (fun (dt, event) ->
-            Shadcn.tableRow [
-                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
-                Shadcn.tableCell event.Title
-                Shadcn.tableCell (event.Tier |> string)
-                Shadcn.tableCell event.Track
-                Shadcn.tableCell event.Duration
-            ])
+
+            Shadcn.select [
+                prop.onChange (fun value -> dispatch (Msg.TierChanged value))
+                prop.onCheckedChange (fun _ -> Browser.Dom.window.alert ("Click"))
+                prop.children [
+                    Shadcn.selectTrigger [
+                        Shadcn.selectValue [
+                            prop.placeholder "Tier"
+                            prop.onChange (fun value -> dispatch (Msg.TierChanged value))
+                        ]
+                    ]
+                    Shadcn.selectContent [
+                        Shadcn.selectItem [
+                            prop.value "All"
+                            prop.text "All"
+                            prop.onClick (fun _ -> Browser.Dom.window.alert ("All"))
+                        ]
+                        Shadcn.selectItem [ prop.value "Beginner"; prop.text "Beginner" ]
+                        Shadcn.selectItem [ prop.value "Intermediate"; prop.text "Intermediate" ]
+                        Shadcn.selectItem [ prop.value "Advanced"; prop.text "Advanced" ]
+                    ]
+                ]
+            ]
+            Shadcn.table [
+                Shadcn.tableHeader [
+                    Shadcn.tableRow [
+                        Shadcn.tableHead "Time"
+                        Shadcn.tableHead "Title"
+                        Shadcn.tableHead "Tier"
+                        Shadcn.tableHead "Track"
+                        Shadcn.tableHead "Duration"
+                    ]
+                ]
+                Shadcn.tableBody [
+                    yield!
+                        events
+                        |> List.map (fun (dt, event) ->
+                            Shadcn.tableRow [
+                                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                                Shadcn.tableCell event.Title
+                                Shadcn.tableCell (event.Tier |> string)
+                                Shadcn.tableCell event.Track
+                                Shadcn.tableCell event.Duration
+                            ])
+                ]
+            ]
         ]
     ]
 
@@ -85,7 +127,7 @@ let view (_model: Model) (_dispatch: Msg -> unit) =
     if _model.IsLoading then
         loadingComponent ()
     else
-        raceEventsComponent _model.Events
+        raceEventsComponent _model.Events _dispatch
 
 let page (_shared: SharedModel) (_route: HomeRoute) =
     Page.from (fun _ -> init _shared) update view () LayoutMsg
