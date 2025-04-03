@@ -1,43 +1,22 @@
 module LmuRaces.Pages.Page
 
-open System
 open Fable.Core.JS
 open Feliz
 open ElmishLand
 open LmuRaces.Shared
 open LmuRaces.Pages
+open RaceEvent
 open Thoth.Json
 open Thoth.Fetch
 open Feliz.Shadcn
+open Tier
 
 // TODO list:
-// loader
 // sidebar menu avec le détail des courses
+// loader
 // Pouvoir changer le theme.
 // Avoir son propre backend
 // Championnat
-
-type Tier =
-    | All
-    | Beginner
-    | Intermediate
-    | Advanced
-
-    static member FromString(s: string) =
-        match s.ToLower() with
-        | "all" -> All
-        | "beginner" -> Beginner
-        | "intermediate" -> Intermediate
-        | "advanced" -> Advanced
-        | x -> failwith $"Invalid tier {x}"
-
-type RaceEvent = {
-    Title: string
-    Tier: Tier
-    Track: string
-    Duration: string
-    Schedules: DateTimeOffset List
-}
 
 type Model = {
     Events: RaceEvent list
@@ -50,27 +29,10 @@ type Msg =
     | EventsFetched of RaceEvent list
     | TierChanged of string
 
-module Decoders =
-    let tierDecoder: Decoder<Tier> =
-        Decode.string
-        |> Decode.andThen (fun str ->
-            match str.ToLower() with
-            | "all" -> Decode.succeed Tier.All
-            | "beginner" -> Decode.succeed Tier.Beginner
-            | "intermediate" -> Decode.succeed Tier.Intermediate
-            | "advanced" -> Decode.succeed Tier.Advanced
-            | _ -> Decode.fail $"Impossible de convertir '{str}' en Tier")
-
-    let tierEncoder (tier: Tier) =
-        match tier with
-        | Tier.All -> Encode.string "all"
-        | Tier.Beginner -> Encode.string "beginner"
-        | Tier.Intermediate -> Encode.string "intermediate"
-        | Tier.Advanced -> Encode.string "advanced"
-
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     let customResolver =
         Extra.empty |> Extra.withCustom Decoders.tierEncoder Decoders.tierDecoder
+
     Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase, extra = customResolver)
 
 let init (_shared: SharedModel) =
@@ -105,14 +67,11 @@ let tierSelector (dispatch: Msg -> unit) =
         prop.className "m-3"
         prop.children [
             Shadcn.select [
+                select.defaultValue "all"
                 select.onValueChange (fun value -> dispatch (TierChanged value))
-                // prop.defaultValue "all"
                 prop.children [
                     Shadcn.selectTrigger [
-                        Shadcn.selectValue [
-                            prop.placeholder "Select Tier"
-                            prop.onChange (fun value -> dispatch (Msg.TierChanged value))
-                        ]
+                        Shadcn.selectValue [ prop.onChange (fun value -> dispatch (Msg.TierChanged value)) ]
                     ]
                     Shadcn.selectContent [
                         Shadcn.selectItem [ prop.value "all"; prop.text "All" ]
@@ -125,16 +84,13 @@ let tierSelector (dispatch: Msg -> unit) =
         ]
     ]
 
-let filterEvents tier event =
-    if tier = All then
-        true
-    else
-        event.Tier = tier
-
 let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
     let events =
         model.Events
-        |> List.filter (filterEvents model.SelectedTier)
+        |> List.filter (fun event ->
+            match model.SelectedTier with
+            | All -> true
+            | selected -> event.Tier = selected)
         |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
