@@ -10,6 +10,19 @@ open Thoth.Json
 open Thoth.Fetch
 open Feliz.Shadcn
 
+// TODO list:
+// filtre sur tier
+// loader
+// sidebar menu avec le détail des courses
+// Pouvoir changer le theme.
+// Avoir son propre backend
+// Championnat
+
+type Tier =
+    | Beginner
+    | Intermediate
+    | Advanced
+
 type RaceEvent = {
     Title: string
     Tier: string
@@ -61,7 +74,7 @@ let raceEventsComponent (events: RaceEvent list) =
             Shadcn.tableRow [
                 Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
                 Shadcn.tableCell event.Title
-                Shadcn.tableCell event.Tier
+                Shadcn.tableCell (event.Tier |> string)
                 Shadcn.tableCell event.Track
                 Shadcn.tableCell event.Duration
             ])
