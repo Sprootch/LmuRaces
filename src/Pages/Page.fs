@@ -23,6 +23,21 @@ type Tier =
     | Intermediate
     | Advanced
 
+    static member ToString(tier: Tier) =
+        match tier with
+        | All -> "all"
+        | Beginner -> "beginner"
+        | Intermediate -> "intermediate"
+        | Advanced -> "advanced"
+
+    static member FromString(s: string) =
+        match s.ToLower() with
+        | "all" -> All
+        | "beginner" -> Beginner
+        | "intermediate" -> Intermediate
+        | "advanced" -> Advanced
+        | x -> failwith $"Invalid tier {x}"
+
 type RaceEvent = {
     Title: string
     Tier: string
@@ -53,21 +68,6 @@ let init (_shared: SharedModel) =
     },
     Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
 
-let tierToString =
-    function
-    | All -> "all"
-    | Advanced -> "advanced"
-    | Intermediate -> "intermediate"
-    | Beginner -> "beginner"
-
-let convertTier =
-    function
-    | "all" -> All
-    | "advanced" -> Advanced
-    | "intermediate" -> Intermediate
-    | "beginner" -> Beginner
-    | _ -> All
-
 let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
@@ -81,7 +81,7 @@ let update (msg: Msg) (model: Model) =
     | TierChanged tier ->
         {
             model with
-                SelectedTier = convertTier tier
+                SelectedTier = tier |> Tier.FromString
         },
         Command.none
 
@@ -93,7 +93,7 @@ let tierSelector (dispatch: Msg -> unit) =
         prop.children [
             Shadcn.select [
                 select.onValueChange (fun value -> dispatch (TierChanged value))
-                prop.defaultValue "all"
+                // prop.defaultValue "all"
                 prop.children [
                     Shadcn.selectTrigger [
                         Shadcn.selectValue [
@@ -102,7 +102,7 @@ let tierSelector (dispatch: Msg -> unit) =
                         ]
                     ]
                     Shadcn.selectContent [
-                        Shadcn.selectItem [ prop.value "all"; prop.text "All"; ]
+                        Shadcn.selectItem [ prop.value "all"; prop.text "All" ]
                         Shadcn.selectItem [ prop.value "beginner"; prop.text "Beginner" ]
                         Shadcn.selectItem [ prop.value "intermediate"; prop.text "Intermediate" ]
                         Shadcn.selectItem [ prop.value "advanced"; prop.text "Advanced" ]
@@ -116,7 +116,7 @@ let filterEvents tier event =
     if tier = All then
         true
     else
-        event.Tier = (tier |> tierToString)
+        event.Tier = Tier.ToString(tier)
 
 let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
     let events =
