@@ -22,12 +22,14 @@ type Model = {
     Events: RaceEvent list
     SelectedTier: Tier
     IsLoading: bool
+    ApiUrl: string
 }
 
 type Msg =
     | LayoutMsg of Layout.Msg
     | EventsFetched of RaceEvent list
     | TierChanged of string
+    | Refresh
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     let customResolver =
@@ -40,12 +42,14 @@ let init (_shared: SharedModel) =
         Events = []
         IsLoading = true
         SelectedTier = All
+        ApiUrl = _shared.ApiUrl
     },
     Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
 
 let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
+    | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
     | EventsFetched events ->
         {
             model with
@@ -60,31 +64,24 @@ let update (msg: Msg) (model: Model) =
         },
         Command.none
 
-let loadingComponent () = Html.text "Loading..."
-
 let tierSelector (dispatch: Msg -> unit) =
-    Html.div [
-        prop.className "m-3"
+    Shadcn.select [
+        select.defaultValue "all"
+        select.onValueChange (fun value -> dispatch (TierChanged value))
         prop.children [
-            Shadcn.select [
-                select.defaultValue "all"
-                select.onValueChange (fun value -> dispatch (TierChanged value))
-                prop.children [
-                    Shadcn.selectTrigger [
-                        Shadcn.selectValue [ prop.onChange (fun value -> dispatch (Msg.TierChanged value)) ]
-                    ]
-                    Shadcn.selectContent [
-                        Shadcn.selectItem [ prop.value "all"; prop.text "All" ]
-                        Shadcn.selectItem [ prop.value "beginner"; prop.text "Beginner" ]
-                        Shadcn.selectItem [ prop.value "intermediate"; prop.text "Intermediate" ]
-                        Shadcn.selectItem [ prop.value "advanced"; prop.text "Advanced" ]
-                    ]
-                ]
+            Shadcn.selectTrigger [
+                Shadcn.selectValue [ prop.onChange (fun value -> dispatch (Msg.TierChanged value)) ]
+            ]
+            Shadcn.selectContent [
+                Shadcn.selectItem [ prop.value "all"; prop.text "All" ]
+                Shadcn.selectItem [ prop.value "beginner"; prop.text "Beginner" ]
+                Shadcn.selectItem [ prop.value "intermediate"; prop.text "Intermediate" ]
+                Shadcn.selectItem [ prop.value "advanced"; prop.text "Advanced" ]
             ]
         ]
     ]
 
-let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
+let raceEventsComponent (model: Model) =
     let events =
         model.Events
         |> List.filter (fun event ->
@@ -96,7 +93,6 @@ let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
 
     Html.div [
         prop.children [
-            tierSelector dispatch
             Shadcn.table [
                 Shadcn.tableHeader [
                     Shadcn.tableRow [
@@ -126,11 +122,26 @@ let raceEventsComponent (model: Model) (dispatch: Msg -> unit) =
         ]
     ]
 
+let topBar (_dispatch: Msg -> unit) isLoading =
+    Html.div [
+        prop.className "m-3 flex flex-row gap-2"
+        prop.children [
+            Shadcn.button [
+                prop.title "Refresh"
+                prop.onClick (fun _ -> _dispatch Refresh)
+                prop.children [
+                    Lucide.LoaderCircle [
+                        if isLoading then
+                            svg.className "animate-spin"
+                    ]
+                ]
+            ]
+            tierSelector _dispatch
+        ]
+    ]
+
 let view (_model: Model) (_dispatch: Msg -> unit) =
-    if _model.IsLoading then
-        loadingComponent ()
-    else
-        raceEventsComponent _model _dispatch
+    Html.div [ topBar _dispatch _model.IsLoading; raceEventsComponent _model ]
 
 let page (_shared: SharedModel) (_route: HomeRoute) =
     Page.from (fun _ -> init _shared) update view () LayoutMsg
