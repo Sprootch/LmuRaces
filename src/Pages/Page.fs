@@ -33,7 +33,8 @@ type Msg =
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     let customResolver =
-        Extra.empty |> Extra.withCustom Decoders.tierEncoder Decoders.tierDecoder
+        Extra.empty
+        |> Extra.withCustom Decoders.tierEncoder Decoders.tierDecoder
 
     Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase, extra = customResolver)
 
@@ -50,19 +51,8 @@ let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
     | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
-    | EventsFetched events ->
-        {
-            model with
-                Events = events
-                IsLoading = false
-        },
-        Command.none
-    | TierChanged tier ->
-        {
-            model with
-                SelectedTier = tier |> Tier.FromString
-        },
-        Command.none
+    | EventsFetched events -> { model with Events = events; IsLoading = false }, Command.none
+    | TierChanged tier -> { model with SelectedTier = tier |> Tier.FromString }, Command.none
 
 let tierSelector (dispatch: Msg -> unit) =
     Shadcn.select [
@@ -70,13 +60,27 @@ let tierSelector (dispatch: Msg -> unit) =
         select.onValueChange (fun value -> dispatch (TierChanged value))
         prop.children [
             Shadcn.selectTrigger [
-                Shadcn.selectValue [ prop.onChange (fun value -> dispatch (Msg.TierChanged value)) ]
+                Shadcn.selectValue [
+                    prop.onChange (fun value -> dispatch (Msg.TierChanged value))
+                ]
             ]
             Shadcn.selectContent [
-                Shadcn.selectItem [ prop.value "all"; prop.text "All" ]
-                Shadcn.selectItem [ prop.value "beginner"; prop.text "Beginner" ]
-                Shadcn.selectItem [ prop.value "intermediate"; prop.text "Intermediate" ]
-                Shadcn.selectItem [ prop.value "advanced"; prop.text "Advanced" ]
+                Shadcn.selectItem [
+                    prop.value "all"
+                    prop.text "All"
+                ]
+                Shadcn.selectItem [
+                    prop.value "beginner"
+                    prop.text "Beginner"
+                ]
+                Shadcn.selectItem [
+                    prop.value "intermediate"
+                    prop.text "Intermediate"
+                ]
+                Shadcn.selectItem [
+                    prop.value "advanced"
+                    prop.text "Advanced"
+                ]
             ]
         ]
     ]
@@ -88,7 +92,9 @@ let raceEventsComponent (model: Model) =
             match model.SelectedTier with
             | All -> true
             | selected -> event.Tier = selected)
-        |> List.collect (fun event -> event.Schedules |> List.map (fun schedule -> (schedule, event)))
+        |> List.collect (fun event ->
+            event.Schedules
+            |> List.map (fun schedule -> (schedule, event)))
         |> List.sortBy fst
 
     Html.div [
@@ -112,7 +118,9 @@ let raceEventsComponent (model: Model) =
                                 Shadcn.tableCell [
                                     prop.children [
                                         Html.div event.Title
-                                        Shadcn.badge [ prop.text (event.Tier |> string); badge.variant.destructive ]
+                                        Shadcn.badge [
+                                            prop.text (event.Tier |> string)
+                                        ]
                                     ]
                                 ]
                                 Shadcn.tableCell event.Track
@@ -142,7 +150,10 @@ let topBar (_dispatch: Msg -> unit) isLoading =
     ]
 
 let view (_model: Model) (_dispatch: Msg -> unit) =
-    Html.div [ topBar _dispatch _model.IsLoading; raceEventsComponent _model ]
+    Html.div [
+        topBar _dispatch _model.IsLoading
+        raceEventsComponent _model
+    ]
 
 // let appSideBar () =
 //     Shadcn.sidebar [
