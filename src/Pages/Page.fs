@@ -148,6 +148,7 @@ let topBar (_dispatch: Msg -> unit) (_model:Model)=
             Shadcn.button [
                 prop.title "Refresh"
                 prop.onClick (fun _ -> _dispatch Refresh)
+                prop.disabled _model.IsLoading
                 prop.children [
                     Lucide.LoaderCircle [
                         if _model.IsLoading then
