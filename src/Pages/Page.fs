@@ -23,6 +23,7 @@ type Model = {
     SelectedTier: Tier
     IsLoading: bool
     ApiUrl: string
+    Result : string
 }
 
 type Msg =
@@ -30,6 +31,10 @@ type Msg =
     | EventsFetched of RaceEvent list
     | TierChanged of string
     | Refresh
+    | ApiFetched of string
+
+let fetchapi (apiUrl: string) : Promise<string> =
+    Fetch.get ($"http://localhost:5000/hello/lapin", caseStrategy = CamelCase)
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     let customResolver =
@@ -44,12 +49,17 @@ let init (_shared: SharedModel) =
         IsLoading = true
         SelectedTier = All
         ApiUrl = _shared.ApiUrl
+        Result = ""
     },
-    Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
+    Command.batch [
+        Command.ofPromise fetchapi _shared.ApiUrl Msg.ApiFetched
+        Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
+    ]
 
 let update (msg: Msg) (model: Model) =
     match msg with
     | LayoutMsg _ -> model, Command.none
+    | ApiFetched res -> { model with Result = res }, Command.none
     | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
     | EventsFetched events -> { model with Events = events; IsLoading = false }, Command.none
     | TierChanged tier -> { model with SelectedTier = tier |> Tier.FromString }, Command.none
@@ -131,7 +141,7 @@ let raceEventsComponent (model: Model) =
         ]
     ]
 
-let topBar (_dispatch: Msg -> unit) isLoading =
+let topBar (_dispatch: Msg -> unit) (_model:Model)=
     Html.div [
         prop.className "m-3 flex flex-row gap-2"
         prop.children [
@@ -140,18 +150,19 @@ let topBar (_dispatch: Msg -> unit) isLoading =
                 prop.onClick (fun _ -> _dispatch Refresh)
                 prop.children [
                     Lucide.LoaderCircle [
-                        if isLoading then
+                        if _model.IsLoading then
                             svg.className "animate-spin"
                     ]
                 ]
             ]
             tierSelector _dispatch
+            Html.text _model.Result
         ]
     ]
 
 let view (_model: Model) (_dispatch: Msg -> unit) =
     Html.div [
-        topBar _dispatch _model.IsLoading
+        topBar _dispatch _model
         raceEventsComponent _model
     ]
 

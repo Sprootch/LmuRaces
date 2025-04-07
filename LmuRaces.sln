@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "LmuRaces", "LmuRaces.fsproj", "{FCA747DC-D349-4F40-9A1C-BB421712491A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "api", "api\api.fsproj", "{53A686F0-2010-4413-8C2B-A566300EAD9D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FCA747DC-D349-4F40-9A1C-BB421712491A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCA747DC-D349-4F40-9A1C-BB421712491A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCA747DC-D349-4F40-9A1C-BB421712491A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCA747DC-D349-4F40-9A1C-BB421712491A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53A686F0-2010-4413-8C2B-A566300EAD9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53A686F0-2010-4413-8C2B-A566300EAD9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53A686F0-2010-4413-8C2B-A566300EAD9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53A686F0-2010-4413-8C2B-A566300EAD9D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
