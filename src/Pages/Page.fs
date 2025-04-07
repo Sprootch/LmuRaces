@@ -34,7 +34,7 @@ type Msg =
     | ApiFetched of string
 
 let fetchapi (apiUrl: string) : Promise<string> =
-    Fetch.get ($"http://localhost:5000/hello/lapin", caseStrategy = CamelCase)
+    Fetch.get ($"api/hello/lapin", caseStrategy = CamelCase)
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
     let customResolver =
@@ -52,7 +52,7 @@ let init (_shared: SharedModel) =
         Result = ""
     },
     Command.batch [
-        Command.ofPromise fetchapi _shared.ApiUrl Msg.ApiFetched
+        // Command.ofPromise fetchapi _shared.ApiUrl Msg.ApiFetched
         Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
     ]
 
@@ -153,10 +153,11 @@ let topBar (_dispatch: Msg -> unit) (_model:Model)=
                         if _model.IsLoading then
                             svg.className "animate-spin"
                     ]
+                    Html.text "Refresh"
                 ]
             ]
             tierSelector _dispatch
-            Html.text _model.Result
+            // Html.text _model.Result
         ]
     ]
 
