@@ -7,10 +7,6 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Giraffe" Version="6.4.0" />
-    <PackageReference Include="Giraffe.ViewEngine" Version="1.4.*" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -18,5 +14,9 @@
     <Content Include="WebRoot\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Giraffe" />
+    <PackageReference Include="Giraffe.ViewEngine" />
   </ItemGroup>
 </Project>

@@ -17,5 +17,7 @@
     <PackageVersion Include="Feliz.Router" Version="4.0.0" />
     <PackageVersion Include="Thoth.Fetch" Version="3.0.1" />
     <PackageVersion Include="Thoth.Json" Version="10.4.1" />
+    <PackageVersion Include="Giraffe" Version="6.4.0" />
+    <PackageVersion Include="Giraffe.ViewEngine" Version="1.4.0" />
   </ItemGroup>
 </Project>
