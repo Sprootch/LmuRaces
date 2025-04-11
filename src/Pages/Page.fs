@@ -23,7 +23,7 @@ type Model = {
     SelectedTier: Tier
     IsLoading: bool
     ApiUrl: string
-    Result : string
+    Result: string
 }
 
 type Msg =
@@ -95,6 +95,7 @@ let tierSelector (dispatch: Msg -> unit) =
         ]
     ]
 
+[<ReactComponent>]
 let raceEventsComponent (model: Model) =
     let events =
         model.Events
@@ -124,24 +125,47 @@ let raceEventsComponent (model: Model) =
                         events
                         |> List.map (fun (dt, event) ->
                             Shadcn.tableRow [
-                                Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
-                                Shadcn.tableCell [
-                                    prop.children [
-                                        Html.div event.Title
-                                        Shadcn.badge [
-                                            prop.text (event.Tier |> string)
+
+                                let open', setOpen = React.useState false
+                                prop.onMouseEnter (fun _ -> setOpen true)
+
+                                prop.children [
+                                    Shadcn.popover [
+                                        prop.custom ("open", open')
+                                        prop.custom ("onOpenChange", setOpen)
+                                        prop.children [
+                                            Shadcn.popoverTrigger [
+                                                prop.custom ("data-state", if open' then "open" else "closed")
+                                            ]
+                                            Shadcn.popoverContent [
+                                                Html.img [
+                                                  prop.classes [ "w-full" ]
+                                                  prop.src event.ImageUrl
+                                                  // prop.style [ style.width.initial ]
+                                                ]
+                                            ]
                                         ]
                                     ]
+                                    Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
+                                    Shadcn.tableCell [
+                                        // prop.onClick (fun _ -> Browser.Dom.window.alert "tesxt")
+                                        prop.children [
+                                            Html.div event.Title
+                                            Shadcn.badge [
+                                                prop.text (event.Tier |> string)
+                                            ]
+                                        ]
+                                    ]
+                                    Shadcn.tableCell event.Track
+                                    Shadcn.tableCell event.Duration
                                 ]
-                                Shadcn.tableCell event.Track
-                                Shadcn.tableCell event.Duration
                             ])
                 ]
             ]
         ]
     ]
 
-let topBar (_dispatch: Msg -> unit) (_model:Model)=
+let topBar (_dispatch: Msg -> unit) (_model: Model) =
     Html.div [
         prop.className "m-3 flex flex-row gap-2"
         prop.children [
@@ -158,7 +182,7 @@ let topBar (_dispatch: Msg -> unit) (_model:Model)=
                 ]
             ]
             tierSelector _dispatch
-            // Html.text _model.Result
+        // Html.text _model.Result
         ]
     ]
 
