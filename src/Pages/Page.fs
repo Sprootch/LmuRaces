@@ -95,6 +95,33 @@ let tierSelector (dispatch: Msg -> unit) =
     ]
   ]
 
+let popover (event: RaceEvent) (open', setOpen) =
+  Shadcn.popover [
+    prop.custom ("open", open')
+    prop.custom ("onOpenChange", setOpen)
+    popover.open' open'
+    prop.children [
+      Shadcn.popoverTrigger [
+        prop.custom ("data-state", if open' then "open" else "closed")
+        prop.className "grow"
+        prop.children [
+          Html.div []
+        ]
+      ]
+      Shadcn.popoverContent [
+        prop.className "z-50"
+        popoverContent.align.center
+        popoverContent.side.top
+        prop.children [
+          Html.img [
+            prop.className "w-full"
+            prop.src event.ImageUrl
+          ]
+        ]
+      ]
+    ]
+  ]
+
 [<ReactComponent>]
 let RaceEventsComponent (model: Model) =
   let events =
@@ -127,6 +154,7 @@ let RaceEventsComponent (model: Model) =
               Shadcn.tableRow [
                 let open', setOpen = React.useState false
                 prop.onMouseEnter (fun _ -> setOpen true)
+
                 prop.children [
                   Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
                   Shadcn.tableCell [
@@ -142,31 +170,7 @@ let RaceEventsComponent (model: Model) =
                           ]
                         ]
                       ]
-                      Shadcn.popover [
-                        prop.custom ("open", open')
-                        prop.custom ("onOpenChange", setOpen)
-                        popover.open' open'
-                        prop.children [
-                          Shadcn.popoverTrigger [
-                            prop.custom ("data-state", if open' then "open" else "closed")
-                            prop.className "grow"
-                            prop.children [
-                              Html.div []
-                            ]
-                          ]
-                          Shadcn.popoverContent [
-                            prop.className "z-50"
-                            popoverContent.align.center
-                            popoverContent.side.top
-                            prop.children [
-                              Html.img [
-                                prop.className "w-full"
-                                prop.src event.ImageUrl
-                              ]
-                            ]
-                          ]
-                        ]
-                      ]
+                      popover event (open', setOpen)
                     ]
                   ]
                   Shadcn.tableCell event.Track
