@@ -10,7 +10,7 @@ type SharedModel = {
 type SharedMsg = | NoOp
 
 let init () =
-    { ApiUrl = "https://deltarabbit.azurewebsites.net/api" }, Command.none
+    { ApiUrl = "https://localhost:5001/api" }, Command.none
 
 let update (msg: SharedMsg) (model: SharedModel) =
     match msg with

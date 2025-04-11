@@ -1,6 +1,8 @@
 root = true
 
 [*.{fs,fsi,fsx}]
+indent_size = 2
+indent_style = space
 fsharp_multiline_bracket_style = stroustrup
 fsharp_bar_before_discriminated_union_declaration = true
 fsharp_max_array_or_list_width = 1
