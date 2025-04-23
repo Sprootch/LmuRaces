@@ -13,14 +13,13 @@ open Tier
 
 // TODO list:
 // sidebar menu avec le détail des courses
-// loader
-// Pouvoir changer le theme.
 // Avoir son propre backend
 // Championnat
 
 type Model = {
   Events: RaceEvent list
   SelectedTier: Tier
+  SelectedTrack: string
   IsLoading: bool
   ApiUrl: string
   Result: string
@@ -30,6 +29,7 @@ type Msg =
   | LayoutMsg of Layout.Msg
   | EventsFetched of RaceEvent list
   | TierChanged of string
+  | TrackChanged of string
   | Refresh
   | ApiFetched of string
 
@@ -48,6 +48,7 @@ let init (_shared: SharedModel) =
     Events = []
     IsLoading = true
     SelectedTier = All
+    SelectedTrack = "all"
     ApiUrl = _shared.ApiUrl
     Result = ""
   },
@@ -63,6 +64,7 @@ let update (msg: Msg) (model: Model) =
   | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
   | EventsFetched events -> { model with Events = events; IsLoading = false }, Command.none
   | TierChanged tier -> { model with SelectedTier = tier |> Tier.FromString }, Command.none
+  | TrackChanged track -> { model with SelectedTrack = track }, Command.none
 
 let tierSelector (dispatch: Msg -> unit) =
   Shadcn.select [
@@ -71,50 +73,60 @@ let tierSelector (dispatch: Msg -> unit) =
     prop.children [
       Shadcn.selectTrigger [
         Shadcn.selectValue [
+          selectValue.placeholder (Html.text "Tier")
         ]
       ]
       Shadcn.selectContent [
-        Shadcn.selectItem [
-          prop.value "all"
-          prop.text "All"
-        ]
-        Shadcn.selectItem [
-          prop.value "beginner"
-          prop.text "Beginner"
-        ]
-        Shadcn.selectItem [
-          prop.value "intermediate"
-          prop.text "Intermediate"
-        ]
-        Shadcn.selectItem [
-          prop.value "advanced"
-          prop.text "Advanced"
+        Shadcn.selectGroup [
+          Shadcn.selectLabel "Tier"
+          Shadcn.selectItem [
+            prop.value "all"
+            prop.text "All"
+          ]
+          Shadcn.selectItem [
+            prop.value "beginner"
+            prop.text "Beginner"
+          ]
+          Shadcn.selectItem [
+            prop.value "intermediate"
+            prop.text "Intermediate"
+          ]
+          Shadcn.selectItem [
+            prop.value "advanced"
+            prop.text "Advanced"
+          ]
         ]
       ]
     ]
   ]
 
-let eventSelector (model: Model) (dispatch: Msg -> unit) =
-  let data = model.Events |> List.distinctBy _.Title
+let trackSelector (model: Model) (dispatch: Msg -> unit) =
+  let data = model.Events |> List.distinctBy _.Track
 
   Shadcn.select [
     select.defaultValue "all"
-    // select.onValueChange (fun value -> dispatch (TierChanged value))
+    select.onValueChange (fun value -> dispatch (TrackChanged value))
     prop.children [
       Shadcn.selectTrigger [
         Shadcn.selectValue [
-        // prop.onChange (fun value -> dispatch (Msg.TierChanged value))
+          selectValue.placeholder (Html.text "Tracks")
         ]
       ]
-
       Shadcn.selectContent [
-        yield!
-          data
-          |> List.map (fun e ->
-            Shadcn.selectItem [
-              prop.value "all"
-              prop.text "All"
-            ])
+        Shadcn.selectGroup [
+          Shadcn.selectLabel "Track"
+          Shadcn.selectItem [
+            prop.value "all"
+            prop.text "All"
+          ]
+          yield!
+            data
+            |> List.map (fun race ->
+              Shadcn.selectItem [
+                prop.value race.Track
+                prop.text race.Track
+              ])
+        ]
       ]
     ]
   ]
@@ -150,6 +162,10 @@ let popover (event: RaceEvent) (open', setOpen) =
 let RaceEventsComponent (model: Model) =
   let events =
     model.Events
+    |> List.filter (fun event ->
+      match model.SelectedTrack with
+      | "all" -> true
+      | track -> event.Track = track)
     |> List.filter (fun event ->
       match model.SelectedTier with
       | All -> true
@@ -194,7 +210,7 @@ let RaceEventsComponent (model: Model) =
                           ]
                         ]
                       ]
-                      // popover event (open', setOpen)
+                    // popover event (open', setOpen)
                     ]
                   ]
                   Shadcn.tableCell event.Track
@@ -223,7 +239,7 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
         ]
       ]
       tierSelector _dispatch
-      //eventSelector _model _dispatch
+      trackSelector _model _dispatch
     ]
   ]
 
