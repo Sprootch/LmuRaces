@@ -16,10 +16,14 @@ open Tier
 // Avoir son propre backend
 // Championnat
 
+type Filter =
+  | All
+  | Track of string
+  | Tier of Tier
+
 type Model = {
   Events: RaceEvent list
-  SelectedTier: Tier
-  SelectedTrack: string
+  SelectedFilter: Filter
   IsLoading: bool
   ApiUrl: string
   Result: string
@@ -28,13 +32,9 @@ type Model = {
 type Msg =
   | LayoutMsg of Layout.Msg
   | EventsFetched of RaceEvent list
-  | TierChanged of string
-  | TrackChanged of string
-  | Refresh
+  | FilterChanged of Filter
   | ApiFetched of string
-
-let fetchapi (apiUrl: string) : Promise<string> =
-  Fetch.get ($"api/hello/lapin", caseStrategy = CamelCase)
+  | Refresh
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
   let customResolver =
@@ -47,8 +47,7 @@ let init (_shared: SharedModel) =
   {
     Events = []
     IsLoading = true
-    SelectedTier = All
-    SelectedTrack = "all"
+    SelectedFilter = All
     ApiUrl = _shared.ApiUrl
     Result = ""
   },
@@ -63,26 +62,37 @@ let update (msg: Msg) (model: Model) =
   | ApiFetched res -> { model with Result = res }, Command.none
   | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
   | EventsFetched events -> { model with Events = events; IsLoading = false }, Command.none
-  | TierChanged tier -> { model with SelectedTier = tier |> Tier.FromString }, Command.none
-  | TrackChanged track -> { model with SelectedTrack = track }, Command.none
+  | FilterChanged filter -> { model with SelectedFilter = filter }, Command.none
 
-let tierSelector (dispatch: Msg -> unit) =
+let trackSelector (model: Model) (dispatch: Msg -> unit) =
+  let data = model.Events |> List.distinctBy _.Track
+
   Shadcn.select [
     select.defaultValue "all"
-    select.onValueChange (fun value -> dispatch (TierChanged value))
+    select.onValueChange (fun value ->
+      match value with
+      | "beginner" -> dispatch (FilterChanged(Tier Beginner))
+      | "intermediate" -> dispatch (FilterChanged(Tier Intermediate))
+      | "advanced" -> dispatch (FilterChanged(Tier Advanced))
+      | _ -> dispatch (FilterChanged(Track value)))
     prop.children [
       Shadcn.selectTrigger [
-        Shadcn.selectValue [
-          selectValue.placeholder (Html.text "Tier")
+        prop.className "w-[200px]"
+        prop.children [
+          Shadcn.selectValue [
+            selectValue.placeholder (Html.text "Select a filter")
+          ]
         ]
       ]
       Shadcn.selectContent [
         Shadcn.selectGroup [
-          Shadcn.selectLabel "Tier"
           Shadcn.selectItem [
             prop.value "all"
             prop.text "All"
           ]
+        ]
+        Shadcn.selectGroup [
+          Shadcn.selectLabel "Tier"
           Shadcn.selectItem [
             prop.value "beginner"
             prop.text "Beginner"
@@ -96,29 +106,8 @@ let tierSelector (dispatch: Msg -> unit) =
             prop.text "Advanced"
           ]
         ]
-      ]
-    ]
-  ]
-
-let trackSelector (model: Model) (dispatch: Msg -> unit) =
-  let data = model.Events |> List.distinctBy _.Track
-
-  Shadcn.select [
-    select.defaultValue "all"
-    select.onValueChange (fun value -> dispatch (TrackChanged value))
-    prop.children [
-      Shadcn.selectTrigger [
-        Shadcn.selectValue [
-          selectValue.placeholder (Html.text "Tracks")
-        ]
-      ]
-      Shadcn.selectContent [
         Shadcn.selectGroup [
           Shadcn.selectLabel "Track"
-          Shadcn.selectItem [
-            prop.value "all"
-            prop.text "All"
-          ]
           yield!
             data
             |> List.map (fun race ->
@@ -163,13 +152,10 @@ let RaceEventsComponent (model: Model) =
   let events =
     model.Events
     |> List.filter (fun event ->
-      match model.SelectedTrack with
-      | "all" -> true
-      | track -> event.Track = track)
-    |> List.filter (fun event ->
-      match model.SelectedTier with
+      match model.SelectedFilter with
       | All -> true
-      | selected -> event.Tier = selected)
+      | Track track -> event.Track = track
+      | Tier t -> event.Tier = t)
     |> List.collect (fun event ->
       event.Schedules
       |> List.map (fun schedule -> (schedule, event)))
@@ -238,7 +224,7 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
           Html.text "Refresh"
         ]
       ]
-      tierSelector _dispatch
+      // tierSelector _dispatch
       trackSelector _model _dispatch
     ]
   ]
