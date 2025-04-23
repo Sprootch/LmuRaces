@@ -71,7 +71,6 @@ let tierSelector (dispatch: Msg -> unit) =
     prop.children [
       Shadcn.selectTrigger [
         Shadcn.selectValue [
-          prop.onChange (fun value -> dispatch (Msg.TierChanged value))
         ]
       ]
       Shadcn.selectContent [
@@ -91,6 +90,31 @@ let tierSelector (dispatch: Msg -> unit) =
           prop.value "advanced"
           prop.text "Advanced"
         ]
+      ]
+    ]
+  ]
+
+let eventSelector (model: Model) (dispatch: Msg -> unit) =
+  let data = model.Events |> List.distinctBy _.Title
+
+  Shadcn.select [
+    select.defaultValue "all"
+    // select.onValueChange (fun value -> dispatch (TierChanged value))
+    prop.children [
+      Shadcn.selectTrigger [
+        Shadcn.selectValue [
+        // prop.onChange (fun value -> dispatch (Msg.TierChanged value))
+        ]
+      ]
+
+      Shadcn.selectContent [
+        yield!
+          data
+          |> List.map (fun e ->
+            Shadcn.selectItem [
+              prop.value "all"
+              prop.text "All"
+            ])
       ]
     ]
   ]
@@ -122,7 +146,7 @@ let popover (event: RaceEvent) (open', setOpen) =
     ]
   ]
 
-[<ReactComponent>]
+// [<ReactComponent>]
 let RaceEventsComponent (model: Model) =
   let events =
     model.Events
@@ -152,8 +176,8 @@ let RaceEventsComponent (model: Model) =
             events
             |> List.map (fun (dt, event) ->
               Shadcn.tableRow [
-                let open', setOpen = React.useState false
-                prop.onMouseEnter (fun _ -> setOpen true)
+                // let open', setOpen = React.useState false
+                // prop.onMouseEnter (fun _ -> setOpen true)
 
                 prop.children [
                   Shadcn.tableCell $"""{dt.ToLocalTime().ToString("HH:mm")}"""
@@ -170,7 +194,7 @@ let RaceEventsComponent (model: Model) =
                           ]
                         ]
                       ]
-                      popover event (open', setOpen)
+                      // popover event (open', setOpen)
                     ]
                   ]
                   Shadcn.tableCell event.Track
@@ -199,7 +223,7 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
         ]
       ]
       tierSelector _dispatch
-    // Html.text _model.Result
+      //eventSelector _model _dispatch
     ]
   ]
 
