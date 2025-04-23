@@ -178,11 +178,11 @@ let RaceEventsComponent (model: Model) =
             ]
             Shadcn.tableHead [
               prop.text "Track"
-              prop.className "w-3/10"
+              prop.className "w-4/10"
             ]
             Shadcn.tableHead [
               prop.text "Duration"
-              prop.className "w-2/10"
+              prop.className "w-1/10"
             ]
           ]
         ]
@@ -213,7 +213,8 @@ let RaceEventsComponent (model: Model) =
                     ]
                   ]
                   Shadcn.tableCell event.Track
-                  Shadcn.tableCell event.Duration
+                  // Shadcn.tableCell event.Duration
+                  Shadcn.tableCell $"{event.DurationTs.TotalMinutes} min"
                 ]
               ])
         ]

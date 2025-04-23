@@ -8,6 +8,7 @@ type RaceEvent = {
     Tier: Tier
     Track: string
     Duration: string
+    DurationTs: TimeSpan
     ImageUrl: string
     Schedules: DateTimeOffset List
 }
