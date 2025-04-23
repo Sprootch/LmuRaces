@@ -71,6 +71,7 @@ let trackSelector (model: Model) (dispatch: Msg -> unit) =
     select.defaultValue "all"
     select.onValueChange (fun value ->
       match value with
+      | "all" -> dispatch (FilterChanged All)
       | "beginner" -> dispatch (FilterChanged(Tier Beginner))
       | "intermediate" -> dispatch (FilterChanged(Tier Intermediate))
       | "advanced" -> dispatch (FilterChanged(Tier Advanced))
@@ -167,10 +168,22 @@ let RaceEventsComponent (model: Model) =
       Shadcn.table [
         Shadcn.tableHeader [
           Shadcn.tableRow [
-            Shadcn.tableHead "Time"
-            Shadcn.tableHead "Title"
-            Shadcn.tableHead "Track"
-            Shadcn.tableHead "Duration"
+            Shadcn.tableHead [
+              prop.text "Time"
+              prop.className "w-1/10"
+            ]
+            Shadcn.tableHead [
+              prop.text "Title"
+              prop.className "w-4/10"
+            ]
+            Shadcn.tableHead [
+              prop.text "Track"
+              prop.className "w-3/10"
+            ]
+            Shadcn.tableHead [
+              prop.text "Duration"
+              prop.className "w-2/10"
+            ]
           ]
         ]
         Shadcn.tableBody [
@@ -224,7 +237,6 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
           Html.text "Refresh"
         ]
       ]
-      // tierSelector _dispatch
       trackSelector _model _dispatch
     ]
   ]
