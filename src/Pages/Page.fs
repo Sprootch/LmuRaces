@@ -11,7 +11,8 @@ open Thoth.Fetch
 open Feliz.Shadcn
 open Tier
 
-// TODO list:
+// TODO :
+// query string
 // sidebar menu avec le détail des courses
 // Avoir son propre backend
 // Championnat
@@ -204,7 +205,8 @@ let RaceEventsComponent (model: Model) =
                         prop.children [
                           Html.div event.Title
                           Shadcn.badge [
-                            prop.className "text-xs"
+                            prop.className "text-xs text-accent-foreground bg-accent"
+                            // badge.variant.secondary
                             prop.text (event.Tier |> string)
                           ]
                         ]
