@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.pink {
+  background-color: #e31476;
+}
+
+.brand-blue {
+  background-color: #02c8ed;
+}
+
 .bronze {
   background-color: #977548;
 }

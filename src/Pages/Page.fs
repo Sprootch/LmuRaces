@@ -82,7 +82,7 @@ let trackSelector (model: Model) (dispatch: Msg -> unit) =
         prop.className "w-[200px]"
         prop.children [
           Shadcn.selectValue [
-            selectValue.placeholder (Html.text "Select a filter")
+            prop.className "font-semibold"
           ]
         ]
       ]
@@ -171,19 +171,19 @@ let RaceEventsComponent (model: Model) =
           Shadcn.tableRow [
             Shadcn.tableHead [
               prop.text "Time"
-              prop.className "w-1/10"
+              prop.className "w-1/10 font-semibold"
             ]
             Shadcn.tableHead [
               prop.text "Title"
-              prop.className "w-4/10"
+              prop.className "w-4/10 font-semibold"
             ]
             Shadcn.tableHead [
               prop.text "Track"
-              prop.className "w-4/10"
+              prop.className "w-4/10 font-semibold"
             ]
             Shadcn.tableHead [
               prop.text "Duration"
-              prop.className "w-1/10"
+              prop.className "w-1/10 font-semibold"
             ]
           ]
         ]
@@ -235,7 +235,7 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
     prop.children [
       Shadcn.button [
         prop.title "Refresh"
-        prop.className "text-foreground"
+        prop.className "text-foreground pink font-semibold"
         prop.onClick (fun _ -> _dispatch Refresh)
         prop.disabled _model.IsLoading
         prop.children [
