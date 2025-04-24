@@ -1,0 +1,8 @@
+﻿{
+  "queryParameters": [
+    {
+      "module": "System",
+      "name": "tier"
+    }
+  ]
+}

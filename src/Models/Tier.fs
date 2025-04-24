@@ -7,12 +7,12 @@ type Tier =
     | Intermediate
     | Advanced
 
-    static member FromString(s: string) =
-        match s.ToLower() with
-        | "beginner" -> Beginner
-        | "intermediate" -> Intermediate
-        | "advanced" -> Advanced
-        | x -> failwith $"Invalid tier {x}"
+    static member FromString(tier: string) =
+        match tier.ToLower() with
+        | "beginner" -> Some Beginner
+        | "intermediate" -> Some Intermediate
+        | "advanced" -> Some Advanced
+        | _ -> None
 
 module Decoders =
     let tierDecoder: Decoder<Tier> =

@@ -15,7 +15,7 @@ open Feliz.Router
 [<AutoOpen>]
 module Routes =
 
-    type HomeRoute = unit
+    type HomeRoute = { Tier: string option }
 
     [<RequireQualifiedAccess>]
     type Route =
@@ -62,7 +62,7 @@ module Routes =
 
         let format =
             function
-            | Route.Home () -> Router.format("")
+            | Route.Home { Tier = tier } -> Router.format("", [ match tier with Some x -> "tier",  x | None -> () ])
             | Route.NotFound -> "notFound"
 
         // Need to define our own from Feliz.Router.Route.Query
@@ -102,7 +102,7 @@ module Routes =
                 | xs when not <| (List.last xs).StartsWith("?") -> List.append xs [ "?" ]
                 | xs -> xs
             match xs with
-            | [ Query q ] -> Route.Home ()
+            | [ Query q ] -> Route.Home { Tier = tryGetQuery "tier" Some q; }
             | other ->
                 printfn "Route not found: '%A'" other
                 Route.NotFound

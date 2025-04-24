@@ -9,6 +9,7 @@
         <Compile Include="src/Shared.fs" />
         <Compile Include="src/Models/Tier.fs" />
         <Compile Include="src\Models\RaceEvent.fs" />
+        <Compile Include="src\Pages\route.json" />
         <Compile Include="src/Pages/NotFound.fs" />
         <Compile Include="src/Pages/Layout.fs" />
         <Compile Include="src/Pages/Page.fs" />

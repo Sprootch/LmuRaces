@@ -27,14 +27,12 @@ type Model = {
   SelectedFilter: Filter
   IsLoading: bool
   ApiUrl: string
-  Result: string
 }
 
 type Msg =
   | LayoutMsg of Layout.Msg
   | EventsFetched of RaceEvent list
   | FilterChanged of Filter
-  | ApiFetched of string
   | Refresh
 
 let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
@@ -44,23 +42,26 @@ let fetchEvents (apiUrl: string) : Promise<RaceEvent list> =
 
   Fetch.get ($"{apiUrl}/race/events", caseStrategy = CamelCase, extra = customResolver)
 
-let init (_shared: SharedModel) =
+let init (_shared: SharedModel) (_route: HomeRoute) =
+  let filter =
+    _route.Tier
+    |> Option.bind Tier.FromString
+    |> Option.map Tier
+    |> Option.defaultValue All
+
   {
     Events = []
     IsLoading = true
-    SelectedFilter = All
+    SelectedFilter = filter
     ApiUrl = _shared.ApiUrl
-    Result = ""
   },
   Command.batch [
-    // Command.ofPromise fetchapi _shared.ApiUrl Msg.ApiFetched
     Command.ofPromise fetchEvents _shared.ApiUrl Msg.EventsFetched
   ]
 
 let update (msg: Msg) (model: Model) =
   match msg with
   | LayoutMsg _ -> model, Command.none
-  | ApiFetched res -> { model with Result = res }, Command.none
   | Refresh -> { model with IsLoading = true }, Command.ofPromise fetchEvents model.ApiUrl Msg.EventsFetched
   | EventsFetched events -> { model with Events = events; IsLoading = false }, Command.none
   | FilterChanged filter -> { model with SelectedFilter = filter }, Command.none
@@ -69,7 +70,15 @@ let trackSelector (model: Model) (dispatch: Msg -> unit) =
   let data = model.Events |> List.distinctBy _.Track
 
   Shadcn.select [
-    select.defaultValue "all"
+    select.defaultValue (
+      match model.SelectedFilter with
+      | Tier t ->
+        match t with
+        | Beginner -> "beginner"
+        | Intermediate -> "intermediate"
+        | Advanced -> "advanced"
+      | _ -> "all"
+    )
     select.onValueChange (fun value ->
       match value with
       | "all" -> dispatch (FilterChanged All)
@@ -291,4 +300,4 @@ let view (_model: Model) (_dispatch: Msg -> unit) =
 //         ]
 //
 let page (_shared: SharedModel) (_route: HomeRoute) =
-  Page.from (fun _ -> init _shared) update view () LayoutMsg
+  Page.from (fun _ -> init _shared _route) update view () LayoutMsg
