@@ -37,12 +37,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.x'
-      - name: Build API
-        id: build-api
-        run: |
-          dotnet restore api/api.fsproj
-          dotnet build api/api.fsproj --configuration Release
-          dotnet publish api/api.fsproj -c Release -o api-publish
       - name: Elmish Land
         id: elmishland
         run: |
