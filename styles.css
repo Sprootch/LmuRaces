@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.bronze {
+  background-color: #977548;
+}
+
+.silver {
+  background-color: #8F9499;
+}
+
+.gold {
+  background-color: #E1A01F;
+}
+
 :root {
   --radius: 0.5rem;
   --background: oklch(0.98 0.01 244.25);

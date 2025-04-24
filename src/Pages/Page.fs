@@ -204,15 +204,15 @@ let RaceEventsComponent (model: Model) =
                         prop.className "flex flex-col"
                         prop.children [
                           Html.div event.Title
-                          let css =
-                            match event.Tier with
-                            | Beginner -> "text-xs text-primary-foreground bg-primary"
-                            | Intermediate -> "text-xs text-secondary-foreground bg-secondary"
-                            | Advanced -> "text-xs text-accent-foreground bg-accent"
-
                           Shadcn.badge [
-                            prop.className css
                             prop.text (event.Tier |> string)
+                            prop.classes [
+                              "text-xs text-foreground"
+                              match event.Tier with
+                              | Beginner -> "bronze"
+                              | Intermediate -> "silver"
+                              | Advanced -> "gold"
+                            ]
                           ]
                         ]
                       ]
@@ -235,6 +235,7 @@ let topBar (_dispatch: Msg -> unit) (_model: Model) =
     prop.children [
       Shadcn.button [
         prop.title "Refresh"
+        prop.className "text-foreground"
         prop.onClick (fun _ -> _dispatch Refresh)
         prop.disabled _model.IsLoading
         prop.children [
