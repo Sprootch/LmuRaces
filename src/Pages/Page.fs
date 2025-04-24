@@ -204,9 +204,14 @@ let RaceEventsComponent (model: Model) =
                         prop.className "flex flex-col"
                         prop.children [
                           Html.div event.Title
+                          let css =
+                            match event.Tier with
+                            | Beginner -> "text-xs text-primary-foreground bg-primary"
+                            | Intermediate -> "text-xs text-secondary-foreground bg-secondary"
+                            | Advanced -> "text-xs text-accent-foreground bg-accent"
+
                           Shadcn.badge [
-                            prop.className "text-xs text-accent-foreground bg-accent"
-                            // badge.variant.secondary
+                            prop.className css
                             prop.text (event.Tier |> string)
                           ]
                         ]
